@@ -37,33 +37,3 @@ self.addEventListener('install', e => {
         .then(cache => cache.addAll(APP_SHELL_INMUTABLE));
     e.waitUntil(Promise.all([cacheStatic, cacheInmutable]));
 });
-
-
-self.addEventListener("activate", e => {
-    const respuesta = caches.keys()
-        .then(keys => {
-            keys.forEach(key => {
-                console.log(key);
-                if (key !== STATIC_CACHE && key.includes('static')) {
-                    return caches.delete(key);
-                }
-            });
-        });
-    e.waitUntil(respuesta);
-});
-
-self.addEventListener('fetch', e => {
-    const respuesta = caches.match(e.request)
-        .then(resp => {
-            if (resp) {
-                return resp;
-            } else {
-
-                return fetch(e.request).then(newResp => {
-                    return actualizaCacheDinamico(DINAMIC_CACHE, e.request, newResp);
-                });
-
-            }
-        });
-    return e.respondWith(respuesta);
-});
